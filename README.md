@@ -1,0 +1,710 @@
+is-it-technology.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Is It Technology?</title>
+  <style>
+    :root {
+      --ink: #18304f;
+      --muted: #5d6d83;
+      --blue: #1677ff;
+      --blue-dark: #0c57c7;
+      --yellow: #ffd84d;
+      --green: #27c77a;
+      --pink: #ff6aa9;
+      --orange: #ff9f2d;
+      --paper: #fffaf0;
+      --white: #ffffff;
+      --shadow: 0 14px 32px rgba(20, 45, 80, 0.18);
+      --soft-shadow: 0 8px 18px rgba(20, 45, 80, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(255, 216, 77, 0.55) 0 90px, transparent 92px),
+        radial-gradient(circle at 88% 8%, rgba(255, 106, 169, 0.38) 0 110px, transparent 112px),
+        radial-gradient(circle at 82% 86%, rgba(39, 199, 122, 0.38) 0 130px, transparent 132px),
+        linear-gradient(135deg, #e9f7ff 0%, #fff6d6 44%, #f2ecff 100%);
+      overflow-x: hidden;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.4rem, 5vw, 5rem);
+      line-height: 1;
+      color: #10294a;
+      text-shadow: 0 5px 0 rgba(255, 255, 255, 0.8);
+      letter-spacing: 0;
+    }
+
+    .instruction {
+      justify-self: center;
+      margin: 0;
+      padding: 14px 22px;
+      width: fit-content;
+      max-width: 900px;
+      font-size: clamp(1.1rem, 2.2vw, 1.55rem);
+      font-weight: 800;
+      color: #243a58;
+      background: rgba(255, 255, 255, 0.84);
+      border: 3px solid rgba(22, 119, 255, 0.22);
+      border-radius: 22px;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .game-shell {
+      display: grid;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card-bank,
+    .zone {
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-bank {
+      min-height: 0;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 4px solid rgba(255, 159, 45, 0.42);
+    }
+
+    .bank-title,
+    .zone-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 54px;
+      margin: 0 0 14px;
+      font-size: clamp(1.25rem, 2vw, 1.7rem);
+      font-weight: 900;
+      text-align: center;
+      color: #10294a;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      min-height: 160px;
+      align-content: start;
+      transition: background-color 180ms ease, transform 180ms ease;
+    }
+
+    .card-bank .cards {
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    }
+
+    .columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .zone {
+      min-height: 500px;
+      padding: 18px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 4px solid rgba(22, 119, 255, 0.3);
+    }
+
+    .zone[data-zone="technology"] {
+      border-color: rgba(39, 199, 122, 0.45);
+      background: linear-gradient(180deg, rgba(236, 255, 244, 0.94), rgba(255, 255, 255, 0.92));
+    }
+
+    .zone[data-zone="not-technology"] {
+      border-color: rgba(255, 106, 169, 0.45);
+      background: linear-gradient(180deg, rgba(255, 240, 248, 0.94), rgba(255, 255, 255, 0.92));
+    }
+
+    .zone.over,
+    .card-bank.over {
+      transform: translateY(-4px);
+      outline: 5px solid rgba(255, 216, 77, 0.75);
+      outline-offset: 3px;
+    }
+
+    .zone-emoji {
+      display: inline-grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--yellow);
+      box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .card {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      align-items: center;
+      gap: 12px;
+      min-height: 78px;
+      padding: 10px 14px;
+      color: #17304f;
+      background: var(--white);
+      border: 3px solid rgba(16, 41, 74, 0.09);
+      border-radius: 20px;
+      box-shadow: var(--soft-shadow);
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      transition: transform 220ms ease, box-shadow 220ms ease, opacity 220ms ease;
+    }
+
+    .card:active {
+      cursor: grabbing;
+    }
+
+    .card.dragging {
+      opacity: 0.72;
+      transform: scale(1.04) rotate(1deg);
+      box-shadow: 0 18px 30px rgba(20, 45, 80, 0.24);
+    }
+
+    .card.reveal-move {
+      animation: popIn 520ms ease both;
+    }
+
+    .card-icon {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      font-size: 2.05rem;
+      background: linear-gradient(145deg, #fff1ad, #ffd2e7);
+      box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .card-name {
+      min-width: 0;
+      font-size: clamp(1.2rem, 2vw, 1.55rem);
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 18px;
+      min-height: 62px;
+      padding: 14px 26px;
+      font-family: inherit;
+      font-size: clamp(1.1rem, 2vw, 1.5rem);
+      font-weight: 900;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 10px 0 rgba(11, 57, 122, 0.24), var(--soft-shadow);
+      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+    }
+
+    button:hover {
+      filter: brightness(1.04);
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(4px);
+      box-shadow: 0 4px 0 rgba(11, 57, 122, 0.24), var(--soft-shadow);
+    }
+
+    .check {
+      background: linear-gradient(180deg, var(--blue), var(--blue-dark));
+    }
+
+    .again {
+      display: none;
+      background: linear-gradient(180deg, var(--pink), #d8327c);
+    }
+
+    .again.show {
+      display: inline-block;
+    }
+
+    .definition-card {
+      display: none;
+      margin: 26px auto 0;
+      width: min(920px, 100%);
+      padding: clamp(20px, 4vw, 34px);
+      text-align: center;
+      background: rgba(255, 255, 255, 0.94);
+      border: 5px solid rgba(255, 216, 77, 0.95);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      animation: popIn 520ms ease both;
+    }
+
+    .definition-card.show {
+      display: block;
+    }
+
+    .definition-card h2 {
+      margin: 0 0 16px;
+      font-size: clamp(1.8rem, 4vw, 3.2rem);
+      line-height: 1.08;
+      color: #0f3b78;
+      letter-spacing: 0;
+    }
+
+    .definition-card p {
+      margin: 0 auto;
+      max-width: 780px;
+      font-size: clamp(1.05rem, 2.1vw, 1.45rem);
+      line-height: 1.45;
+      font-style: italic;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(11, 30, 55, 0.42);
+      backdrop-filter: blur(3px);
+    }
+
+    .overlay.show {
+      display: grid;
+    }
+
+    .popup {
+      width: min(720px, 100%);
+      padding: clamp(24px, 5vw, 44px);
+      text-align: center;
+      background: var(--paper);
+      border: 6px solid var(--yellow);
+      border-radius: 30px;
+      box-shadow: 0 24px 60px rgba(7, 22, 45, 0.34);
+      animation: bounceIn 650ms cubic-bezier(.2, 1.2, .3, 1) both;
+    }
+
+    .popup h2 {
+      margin: 0 0 22px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .popup button {
+      background: linear-gradient(180deg, var(--green), #12985a);
+    }
+
+    .confetti-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 19;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute;
+      top: -24px;
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      background: var(--yellow);
+      animation: fall 1400ms linear forwards;
+    }
+
+    .confetti.star {
+      width: 22px;
+      height: 22px;
+      border-radius: 0;
+      clip-path: polygon(50% 0%, 62% 34%, 98% 35%, 69% 56%, 79% 91%, 50% 70%, 21% 91%, 31% 56%, 2% 35%, 38% 34%);
+    }
+
+    @keyframes fall {
+      to {
+        transform: translate3d(var(--drift), 110vh, 0) rotate(720deg);
+        opacity: 0.25;
+      }
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.82);
+        opacity: 0;
+      }
+      70% {
+        transform: scale(1.05);
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes bounceIn {
+      0% {
+        transform: translateY(26px) scale(0.72);
+        opacity: 0;
+      }
+      72% {
+        transform: translateY(-8px) scale(1.04);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .card-bank .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        min-height: 0;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        padding-top: 18px;
+      }
+
+      .columns,
+      .card-bank .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .zone {
+        min-height: 300px;
+      }
+
+      .card {
+        grid-template-columns: 52px 1fr;
+        min-height: 70px;
+      }
+
+      .card-icon {
+        width: 52px;
+        height: 52px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Is It Technology?</h1>
+      <p class="instruction">Drag each object to either Technology or Not Technology, then click Check Answers.</p>
+    </header>
+
+    <section class="game-shell" aria-label="Sorting game">
+      <aside class="card-bank drop-target" data-zone="bank" aria-label="Object cards">
+        <h2 class="bank-title"><span class="zone-emoji">🎒</span> Cards</h2>
+        <div class="cards" id="cardBank"></div>
+      </aside>
+
+      <section class="columns" aria-label="Answer columns">
+        <div class="zone drop-target" data-zone="technology">
+          <h2 class="zone-title"><span class="zone-emoji">💡</span> Technology</h2>
+          <div class="cards" id="technologyZone"></div>
+        </div>
+
+        <div class="zone drop-target" data-zone="not-technology">
+          <h2 class="zone-title"><span class="zone-emoji">🤔</span> Not Technology</h2>
+          <div class="cards" id="notTechnologyZone"></div>
+        </div>
+      </section>
+    </section>
+
+    <div class="controls">
+      <button class="check" id="checkButton" type="button">Check Answers</button>
+      <button class="again" id="againButton" type="button">Play Again</button>
+    </div>
+
+    <section class="definition-card" id="definitionCard" aria-live="polite">
+      <h2>Technology is anything that helps make work easier.</h2>
+      <p>Technology does not have to be electronic. Simple tools such as pencils, books, scissors, and hammers are also forms of technology because they help people accomplish tasks and solve problems.</p>
+    </section>
+  </main>
+
+  <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+
+  <div class="overlay" id="popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle">
+    <div class="popup">
+      <h2 id="popupTitle">🎉 Surprise! Everything shown is technology!</h2>
+      <button id="closePopup" type="button">Great!</button>
+    </div>
+  </div>
+
+  <script>
+    const objects = [
+      { icon: "✏️", name: "Pencil" },
+      { icon: "📱", name: "Phone" },
+      { icon: "📓", name: "Notebook" },
+      { icon: "📚", name: "Book" },
+      { icon: "🔨", name: "Hammer" },
+      { icon: "✂️", name: "Scissors" },
+      { icon: "🧮", name: "Calculator" },
+      { icon: "💻", name: "Laptop" },
+      { icon: "📺", name: "Television" },
+      { icon: "🖨️", name: "Printer" }
+    ];
+
+    const cardBank = document.getElementById("cardBank");
+    const technologyZone = document.getElementById("technologyZone");
+    const notTechnologyZone = document.getElementById("notTechnologyZone");
+    const checkButton = document.getElementById("checkButton");
+    const againButton = document.getElementById("againButton");
+    const definitionCard = document.getElementById("definitionCard");
+    const popup = document.getElementById("popup");
+    const closePopup = document.getElementById("closePopup");
+    const confettiLayer = document.getElementById("confettiLayer");
+    const dropTargets = document.querySelectorAll(".drop-target");
+
+    let audioContext;
+    let draggedCard = null;
+    let dragGhost = null;
+    let pointerOffset = { x: 0, y: 0 };
+
+    function shuffle(items) {
+      const copy = [...items];
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [copy[index], copy[randomIndex]] = [copy[randomIndex], copy[index]];
+      }
+      return copy;
+    }
+
+    function ensureAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+    }
+
+    function playTone(frequency, duration, type, volume) {
+      ensureAudio();
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      oscillator.type = type;
+      oscillator.frequency.value = frequency;
+      gain.gain.setValueAtTime(volume, audioContext.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + duration);
+    }
+
+    function playDragSound() {
+      playTone(420, 0.08, "triangle", 0.08);
+    }
+
+    function playDropSound() {
+      playTone(610, 0.1, "sine", 0.09);
+    }
+
+    function playCelebrateSound() {
+      [523, 659, 784, 1046].forEach((frequency, index) => {
+        setTimeout(() => playTone(frequency, 0.16, "triangle", 0.1), index * 95);
+      });
+    }
+
+    function createCard(item) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.draggable = false;
+      card.dataset.name = item.name;
+      card.innerHTML = `
+        <span class="card-icon" aria-hidden="true">${item.icon}</span>
+        <span class="card-name">${item.name}</span>
+      `;
+
+      card.addEventListener("pointerdown", event => startPointerDrag(event, card));
+      return card;
+    }
+
+    function getCardsContainer(target) {
+      return target.querySelector(".cards");
+    }
+
+    function handleDrop(target) {
+      if (!draggedCard) return;
+      getCardsContainer(target).appendChild(draggedCard);
+      playDropSound();
+    }
+
+    dropTargets.forEach(target => {
+      target.addEventListener("dragover", event => {
+        event.preventDefault();
+        target.classList.add("over");
+      });
+
+      target.addEventListener("dragleave", () => {
+        target.classList.remove("over");
+      });
+
+      target.addEventListener("drop", event => {
+        event.preventDefault();
+        target.classList.remove("over");
+        handleDrop(target);
+      });
+    });
+
+    function startPointerDrag(event, card) {
+      event.preventDefault();
+      draggedCard = card;
+      const rect = card.getBoundingClientRect();
+      pointerOffset = {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+      };
+      dragGhost = card;
+      card.classList.add("dragging");
+      card.setPointerCapture(event.pointerId);
+      movePointerCard(event);
+      playDragSound();
+    }
+
+    function getDropTargetAtPoint(x, y) {
+      if (!dragGhost) return null;
+      dragGhost.style.pointerEvents = "none";
+      const target = document.elementFromPoint(x, y)?.closest(".drop-target");
+      dragGhost.style.pointerEvents = "";
+      return target;
+    }
+
+    function movePointerCard(event) {
+      if (!dragGhost) return;
+      dragGhost.style.position = "fixed";
+      dragGhost.style.zIndex = "30";
+      dragGhost.style.width = `${dragGhost.offsetWidth}px`;
+      dragGhost.style.left = `${event.clientX - pointerOffset.x}px`;
+      dragGhost.style.top = `${event.clientY - pointerOffset.y}px`;
+      const target = getDropTargetAtPoint(event.clientX, event.clientY);
+      dropTargets.forEach(zone => zone.classList.toggle("over", zone === target));
+    }
+
+    document.addEventListener("pointermove", movePointerCard);
+
+    document.addEventListener("pointerup", event => {
+      if (!dragGhost) return;
+      const target = getDropTargetAtPoint(event.clientX, event.clientY);
+      dragGhost.style.position = "";
+      dragGhost.style.zIndex = "";
+      dragGhost.style.width = "";
+      dragGhost.style.left = "";
+      dragGhost.style.top = "";
+      dragGhost.classList.remove("dragging");
+      dropTargets.forEach(zone => zone.classList.remove("over"));
+      if (target) {
+        getCardsContainer(target).appendChild(dragGhost);
+        playDropSound();
+      }
+      draggedCard = null;
+      dragGhost = null;
+    });
+
+    function renderCards() {
+      cardBank.innerHTML = "";
+      technologyZone.innerHTML = "";
+      notTechnologyZone.innerHTML = "";
+      shuffle(objects).forEach(item => cardBank.appendChild(createCard(item)));
+      definitionCard.classList.remove("show");
+      againButton.classList.remove("show");
+      checkButton.style.display = "inline-block";
+      closePopup.focus({ preventScroll: true });
+    }
+
+    function moveAllToTechnology() {
+      const cards = [...document.querySelectorAll(".card")];
+      cards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.remove("reveal-move");
+          technologyZone.appendChild(card);
+          requestAnimationFrame(() => card.classList.add("reveal-move"));
+        }, index * 110);
+      });
+    }
+
+    function launchConfetti() {
+      confettiLayer.innerHTML = "";
+      const colors = ["#1677ff", "#27c77a", "#ffd84d", "#ff6aa9", "#ff9f2d", "#8d6cff"];
+      for (let index = 0; index < 90; index += 1) {
+        const piece = document.createElement("span");
+        piece.className = `confetti${index % 4 === 0 ? " star" : ""}`;
+        piece.style.left = `${Math.random() * 100}%`;
+        piece.style.background = colors[index % colors.length];
+        piece.style.animationDelay = `${Math.random() * 360}ms`;
+        piece.style.animationDuration = `${1100 + Math.random() * 900}ms`;
+        piece.style.setProperty("--drift", `${-90 + Math.random() * 180}px`);
+        confettiLayer.appendChild(piece);
+      }
+      setTimeout(() => {
+        confettiLayer.innerHTML = "";
+      }, 2600);
+    }
+
+    function checkAnswers() {
+      moveAllToTechnology();
+      launchConfetti();
+      playCelebrateSound();
+      definitionCard.classList.add("show");
+      againButton.classList.add("show");
+      checkButton.style.display = "none";
+      setTimeout(() => {
+        popup.classList.add("show");
+        closePopup.focus();
+      }, 520);
+    }
+
+    function resetGame() {
+      popup.classList.remove("show");
+      renderCards();
+    }
+
+    checkButton.addEventListener("click", checkAnswers);
+    againButton.addEventListener("click", resetGame);
+    closePopup.addEventListener("click", () => popup.classList.remove("show"));
+    popup.addEventListener("click", event => {
+      if (event.target === popup) popup.classList.remove("show");
+    });
+
+    renderCards();
+  </script>
+</body>
+</html>
